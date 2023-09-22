@@ -73,7 +73,6 @@ namespace hw
                 }
                 catch (HttpListenerException ex) when (ex.ErrorCode == 995)
                 {
-                    // 995 - код ошибки, который указывает на остановку сервера
                     break;
                 }
             }
