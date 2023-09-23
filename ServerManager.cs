@@ -71,6 +71,7 @@ namespace hw
                         }
                     }
                 }
+
                 catch (HttpListenerException ex) when (ex.ErrorCode == 995)
                 {
                     break;

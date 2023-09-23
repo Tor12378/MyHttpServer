@@ -45,11 +45,15 @@ namespace hw
 
         private static AppSettings LoadServerConfig()
         {
-            string appSettingsPath = @".\appsettings.json";
             try
             {
+                string appSettingsPath = @".\appsettings.json";
                 string json = File.ReadAllText(appSettingsPath);
                 var config = JsonConvert.DeserializeObject<AppSettings>(json);
+
+                // Измените путь на абсолютный путь, используя базовый каталог проекта
+                config.StaticFilesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.StaticFilesPath);
+
                 EnsureStaticFilesPath(config);
                 return config;
             }
@@ -59,6 +63,12 @@ namespace hw
                 return null;
             }
         }
+        
+
+
+
+
+
 
         private static void EnsureStaticFilesPath(AppSettings config)
         {
