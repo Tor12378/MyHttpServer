@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using MyHttpServer;
 using Newtonsoft.Json;
 
-namespace hw
+namespace MyHttpServer
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            AppSettings config = LoadServerConfig();
+            AppSettings config = ServerConfigManager.LoadServerConfig();
             if (config == null)
             {
                 Console.WriteLine("Ошибка при загрузке конфигурации. Сервер не может быть запущен.");
@@ -26,7 +26,7 @@ namespace hw
             Console.WriteLine($"Сервер запущен на {prefix}");
             Console.WriteLine("Для остановки сервера введите 'stop' в консоль и нажмите Enter.");
 
-            var serverManager = new ServerManager(server,config);
+            var serverManager = new ServerManager(server, config);
             Task.Run(() =>
             {
                 while (true)
@@ -39,51 +39,7 @@ namespace hw
                     }
                 }
             });
-
             serverManager.Start();
-        }
-
-        private static AppSettings LoadServerConfig()
-        {
-            try
-            {
-                string appSettingsPath = @".\appsettings.json";
-                string json = File.ReadAllText(appSettingsPath);
-                var config = JsonConvert.DeserializeObject<AppSettings>(json);
-
-                // Измените путь на абсолютный путь, используя базовый каталог проекта
-                config.StaticFilesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, config.StaticFilesPath);
-
-                EnsureStaticFilesPath(config);
-                return config;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при загрузке конфигурации из файла appsettings.json: {ex.Message}");
-                return null;
-            }
-        }
-        
-
-
-
-
-
-
-        private static void EnsureStaticFilesPath(AppSettings config)
-        {
-            if (!Directory.Exists(config.StaticFilesPath))
-            {
-                try
-                {
-                    Directory.CreateDirectory(config.StaticFilesPath);
-                    Console.WriteLine($"Создана папка для статических файлов: {config.StaticFilesPath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Ошибка при создании папки для статических файлов: {ex.Message}");
-                }
-            }
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using MyHttpServer;
 using Newtonsoft.Json;
 
-namespace hw
+namespace MyHttpServer
 {
     public class ServerManager
     {
@@ -32,13 +33,31 @@ namespace hw
                     var response = context.Response;
 
                     string requestUrl = request.Url.LocalPath;
-                    if (requestUrl.EndsWith(".html"))
+
+                    if (requestUrl.StartsWith("/static/") && (requestUrl.EndsWith(".html") || requestUrl.EndsWith(".png") || requestUrl.EndsWith(".svg")))
                     {
-                        string filePath = Path.Combine(_config.StaticFilesPath, requestUrl.TrimStart('/'));
+                        string filePath = Path.Combine(_config.StaticFilesPath, requestUrl.Substring(8));
                         if (File.Exists(filePath))
                         {
                             byte[] buffer = File.ReadAllBytes(filePath);
                             response.ContentLength64 = buffer.Length;
+                            string contentType;
+                            switch (Path.GetExtension(requestUrl).ToLower())
+                            {
+                                case ".html":
+                                    contentType = "text/html; charset=utf-8";
+                                    break;
+                                case ".png":
+                                    contentType = "image/png";
+                                    break;
+                                case ".svg":
+                                    contentType = "image/svg+xml";
+                                    break;
+                                default:
+                                    contentType = "text/plain; charset=utf-8"; // Значение по умолчанию для неизвестных типов файлов
+                                    break;
+                            }
+                            response.ContentType = contentType;
                             using Stream output = response.OutputStream;
                             output.Write(buffer, 0, buffer.Length);
                             output.Flush();
@@ -59,11 +78,12 @@ namespace hw
                     }
                     else
                     {
-                        string filePath = Path.Combine(_config.StaticFilesPath, "Google.html");
+                        string filePath = Path.Combine(_config.StaticFilesPath, "google.html");
                         if (File.Exists(filePath))
                         {
                             byte[] buffer = File.ReadAllBytes(filePath);
                             response.ContentLength64 = buffer.Length;
+                            response.ContentType = "text/html; charset=utf-8"; 
                             using Stream output = response.OutputStream;
                             output.Write(buffer, 0, buffer.Length);
                             output.Flush();
@@ -71,7 +91,6 @@ namespace hw
                         }
                     }
                 }
-
                 catch (HttpListenerException ex) when (ex.ErrorCode == 995)
                 {
                     break;
