@@ -54,7 +54,7 @@ namespace MyHttpServer
                                     contentType = "image/svg+xml";
                                     break;
                                 default:
-                                    contentType = "text/plain; charset=utf-8"; // Значение по умолчанию для неизвестных типов файлов
+                                    contentType = "text/plain; charset=utf-8"; 
                                     break;
                             }
                             response.ContentType = contentType;
